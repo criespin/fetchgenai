@@ -12,11 +12,11 @@ app.use(express.json());
 
 // Update these values with your PostgreSQL credentials
 const pool = new Pool({
-  user: 'postgres', // update as needed
-  host: 'localhost',
-  database: 'postgres', // update as needed
-  password: '120789', // update as needed
-  port: 5432,
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
 });
 
 // Initialize OpenAI API (replace with your actual API key)
