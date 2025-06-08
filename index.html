@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Test Data Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="chat-container">
+    <h1>FetchGenAI</h1>
+    <form id="prompt-form">
+      <textarea id="prompt-input" placeholder="Enter your prompt..." required rows="3"></textarea>
+      <button type="submit" id="send-btn">Submit</button>
+    </form>
+    <div id="radio-options" style="margin-bottom:1rem;">
+      <label style="margin-right:1.5rem;">
+        <input type="radio" name="mode" value="query" checked> Smart Query
+      </label>
+      <label>
+        <input type="radio" name="mode" value="creation"> Smart Creation
+      </label>
+    </div>
+    <div id="loading-spinner" class="hidden">
+      <div class="spinner"></div>
+    </div>
+    <div id="prompt-examples-row" style="width: 100%; display: flex; justify-content: center; align-items: flex-start; gap: 2rem; margin-bottom: 1.5rem;">
+      <div id="prompt-examples-query" class="example-card">
+        <section class="example-section">
+          <strong>Smart Query Examples</strong>
+          <ul>
+            <li>Show all accounts with payment &gt; 100</li>
+            <li>List accounts with smart meters</li>
+            <li>Get all accounts with payment method 'credit card'</li>
+            <li>Show accounts with payment_plan 'monthly' and smart_meter true</li>
+          </ul>
+        </section>
+      </div>
+      <div id="prompt-examples-creation" class="example-card">
+        <section class="example-section">
+          <strong>Smart Creation Examples</strong>
+          <ul>
+            <li>Generate 10 fake user profiles with name, email, and signup date</li>
+            <li>Create 5 random invoices with amount, due date, and status</li>
+            <li>Produce a list of 8 fictional products with price and category</li>
+            
+          </ul>
+        </section>
+      </div>
+    </div>
+    <div id="response-area">
+      <table id="data-table" class="hidden"></table>
+      <div id="error-message"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
