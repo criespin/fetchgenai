@@ -16,7 +16,7 @@ document.getElementById('prompt-form').addEventListener('submit', async function
 
   try {
     if (mode === 'query') {
-      const response = await fetch('https://fetchgenai.onrender.com/api/query', {
+      const response = await fetch('https://fetchgenai.onrender.com/api/que', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
@@ -32,7 +32,7 @@ document.getElementById('prompt-form').addEventListener('submit', async function
       // Remove any previous AI response
       let aiDiv = document.getElementById('ai-response');
       if (aiDiv) aiDiv.remove();
-      const response = await fetch('https://fetchgenai.onrender.com/api/creation', {
+      const response = await fetch('https://fetchgenai.onrender.com/api/creatn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
