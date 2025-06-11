@@ -31,33 +31,12 @@ document.getElementById('prompt-form').addEventListener('submit', async function
     document.getElementById('response-area').prepend(promptDiv);
 
     if (mode === 'query') {
-      // Remove any previous OpenAI prompt display
-      let promptDiv = document.getElementById('openai-prompt');
-      if (promptDiv) promptDiv.remove();
-      promptDiv = document.createElement('div');
-      promptDiv.id = 'openai-prompt';
-      promptDiv.style.margin = '1.5rem 0';
-      promptDiv.style.background = '#e6f0ff';
-      promptDiv.style.borderRadius = '12px';
-      promptDiv.style.padding = '1rem 1.5rem';
-      promptDiv.style.color = '#185a9d';
-      promptDiv.style.fontSize = '1.05rem';
-      promptDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)';
-      document.getElementById('response-area').prepend(promptDiv);
       const response = await fetch('https://fetchgenai.onrender.com/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
       });
       const result = await response.json();
-      // Defensive: fallback to empty string if undefined
-      const sysPrompt = result.systemPrompt || '';
-      const usrPrompt = result.userPrompt || '';
-      if (sysPrompt || usrPrompt) {
-        promptDiv.innerHTML = `<b>Prompt sent to OpenAI:</b><br><span style='font-weight:600;'>System:</span> <pre style='white-space:pre-wrap;'>${sysPrompt}</pre><span style='font-weight:600;'>User:</span> <pre style='white-space:pre-wrap;'>${usrPrompt}</pre>`;
-      } else {
-        promptDiv.innerHTML = '';
-      }
       if (response.ok && result.data && result.data.length > 0) {
         renderTable(result.data);
         table.classList.remove('hidden');
@@ -65,54 +44,17 @@ document.getElementById('prompt-form').addEventListener('submit', async function
         errorDiv.textContent = 'No data found.';
       }
     } else if (mode === 'creation') {
-      // Remove any previous OpenAI prompt display
-      let promptDiv = document.getElementById('openai-prompt');
-      if (promptDiv) promptDiv.remove();
-      promptDiv = document.createElement('div');
-      promptDiv.id = 'openai-prompt';
-      promptDiv.style.margin = '1.5rem 0';
-      promptDiv.style.background = '#e6f0ff';
-      promptDiv.style.borderRadius = '12px';
-      promptDiv.style.padding = '1rem 1.5rem';
-      promptDiv.style.color = '#185a9d';
-      promptDiv.style.fontSize = '1.05rem';
-      promptDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)';
-      document.getElementById('response-area').prepend(promptDiv);
       const response = await fetch('https://fetchgenai.onrender.com/api/creation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, useSchema })
       });
       const result = await response.json();
-      // Defensive: fallback to empty string if undefined
-      const sysPrompt = result.systemPrompt || '';
-      const usrPrompt = result.userPrompt || '';
-      if (sysPrompt || usrPrompt) {
-        promptDiv.innerHTML = `<b>Prompt sent to OpenAI:</b><br><span style='font-weight:600;'>System:</span> <pre style='white-space:pre-wrap;'>${sysPrompt}</pre><span style='font-weight:600;'>User:</span> <pre style='white-space:pre-wrap;'>${usrPrompt}</pre>`;
-      } else {
-        promptDiv.innerHTML = '';
-      }
       if (response.ok && result.response) {
         errorDiv.textContent = '';
         table.classList.add('hidden');
-        // Show the OpenAI prompt in the UI
-        let promptDiv = document.getElementById('openai-prompt');
-        if (!promptDiv) {
-          promptDiv = document.createElement('div');
-          promptDiv.id = 'openai-prompt';
-          promptDiv.style.margin = '1.5rem 0';
-          promptDiv.style.background = '#e6f0ff';
-          promptDiv.style.borderRadius = '12px';
-          promptDiv.style.padding = '1rem 1.5rem';
-          promptDiv.style.color = '#185a9d';
-          promptDiv.style.fontSize = '1.05rem';
-          promptDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)';
-          document.getElementById('response-area').prepend(promptDiv);
-        }
-        promptDiv.innerHTML = `<b>Prompt sent to OpenAI:</b><br><span style='font-weight:600;'>System:</span> <pre style='white-space:pre-wrap;'>${result.systemPrompt}</pre><span style='font-weight:600;'>User:</span> <pre style='white-space:pre-wrap;'>${result.userPrompt}</pre>`;
         // Try to parse the response as JSON array for table rendering
         let data;
-        // Remove markdown code block if present
         let responseText = result.response.trim();
         if (responseText.startsWith('```json')) {
           responseText = responseText.replace(/^```json[\r\n]*/i, '').replace(/```$/, '').trim();
@@ -130,17 +72,7 @@ document.getElementById('prompt-form').addEventListener('submit', async function
         } else {
           let aiDiv = document.getElementById('ai-response');
           if (aiDiv) aiDiv.remove();
-          aiDiv = document.createElement('div');
-          aiDiv.id = 'ai-response';
-          aiDiv.style.margin = '1.5rem 0';
-          aiDiv.style.background = '#e3f0ff';
-          aiDiv.style.borderRadius = '12px';
-          aiDiv.style.padding = '1rem 1.5rem';
-          aiDiv.style.color = '#0077ff';
-          aiDiv.style.fontSize = '1.1rem';
-          aiDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)';
-          aiDiv.textContent = result.response;
-          document.getElementById('response-area').prepend(aiDiv);
+          errorDiv.textContent = 'No valid table data returned.';
         }
       } else if (result.error) {
         errorDiv.textContent = result.error;
