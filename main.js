@@ -16,20 +16,6 @@ document.getElementById('prompt-form').addEventListener('submit', async function
   sendBtn.disabled = true;
 
   try {
-    // Remove any previous OpenAI prompt display
-    let promptDiv = document.getElementById('openai-prompt');
-    if (promptDiv) promptDiv.remove();
-    promptDiv = document.createElement('div');
-    promptDiv.id = 'openai-prompt';
-    promptDiv.style.margin = '1.5rem 0';
-    promptDiv.style.background = '#e6f0ff';
-    promptDiv.style.borderRadius = '12px';
-    promptDiv.style.padding = '1rem 1.5rem';
-    promptDiv.style.color = '#185a9d';
-    promptDiv.style.fontSize = '1.05rem';
-    promptDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)';
-    document.getElementById('response-area').prepend(promptDiv);
-
     if (mode === 'query') {
       const response = await fetch('https://fetchgenai.onrender.com/api/query', {
         method: 'POST',
