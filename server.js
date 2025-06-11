@@ -49,7 +49,13 @@ app.post('/api/query', async (req, res) => {
       return res.status(400).json({ error: 'Only SELECT queries are allowed.' });
     }
     const { rows } = await pool.query(sqlQuery);
-    res.json({ data: rows, sql: sqlQuery });
+    // Include the prompts in the response for frontend display
+    res.json({
+      data: rows,
+      sql: sqlQuery,
+      systemPrompt: schemaDescription,
+      userPrompt: `Write a SQL SELECT query for: ${prompt}`
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -84,6 +90,12 @@ app.post('/api/creation', async (req, res) => {
       // Freeform generation
       systemPrompt = 'You are a helpful assistant that generates test data in JSON array format for table display. Always respond ONLY with a valid JSON array of objects, where each object represents a row and keys are column names. If the user asks for a list of numbers, return a JSON array of objects with a single key (e.g., "number") and each number as a separate object. Do not include any explanation, markdown, or text before or after the JSON.';
     }
+    // Log the system prompt and user prompt for debugging (force flush)
+    process.stdout.write('\n--- OpenAI system prompt ---\n' + systemPrompt + '\n');
+    process.stdout.write('--- OpenAI user prompt ---\n' + `${prompt}. Respond only with a JSON array of objects.` + '\n');
+    // Also log with console.log for better visibility
+    console.log('\n--- OpenAI system prompt ---\n' + systemPrompt);
+    console.log('--- OpenAI user prompt ---\n' + `${prompt}. Respond only with a JSON array of objects.`);
     const aiResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
@@ -92,7 +104,12 @@ app.post('/api/creation', async (req, res) => {
       ]
     });
     const responseText = aiResponse.choices[0].message.content.trim();
-    res.json({ response: responseText });
+    // Include the prompts in the response for frontend display
+    res.json({
+      response: responseText,
+      systemPrompt,
+      userPrompt: `${prompt}. Respond only with a JSON array of objects.`
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
