@@ -68,6 +68,7 @@ app.post('/api/creation', async (req, res) => {
   }
   try {
     let systemPrompt;
+    let userPromptText;
     if (useSchema) {
       // Dynamically fetch schema from DB and build a strict JSON template for OpenAI
       const { rows } = await pool.query(
@@ -86,21 +87,23 @@ app.post('/api/creation', async (req, res) => {
         return `\"${r.column_name}\": null`;
       }).join(', ');
       systemPrompt = `You are a strict data generator. ALWAYS respond ONLY with a valid JSON array of objects. Each object MUST have ALL of these keys, with NO extra or missing keys, and in this exact order: ${schemaString}.\n\nEach value must be realistic and type-appropriate.\n\nDo not include any explanation, markdown, or text before or after the JSON.\n\nExample:\n[\n  {${exampleObj}}\n]\n\nIf the user prompt asks for a different number of rows, adjust the number of objects, but ALWAYS use these exact keys and types.`;
+      userPromptText = `${prompt}. Respond only with a JSON array of objects using the schema: [${schemaString}].`;
     } else {
       // Freeform generation
       systemPrompt = 'You are a helpful assistant that generates test data in JSON array format for table display. Always respond ONLY with a valid JSON array of objects, where each object represents a row and keys are column names. If the user asks for a list of numbers, return a JSON array of objects with a single key (e.g., "number") and each number as a separate object. Do not include any explanation, markdown, or text before or after the JSON.';
+      userPromptText = `${prompt}. Respond only with a JSON array of objects.`;
     }
     // Log the system prompt and user prompt for debugging (force flush)
     process.stdout.write('\n--- OpenAI system prompt ---\n' + systemPrompt + '\n');
-    process.stdout.write('--- OpenAI user prompt ---\n' + `${prompt}. Respond only with a JSON array of objects.` + '\n');
+    process.stdout.write('--- OpenAI user prompt ---\n' + userPromptText + '\n');
     // Also log with console.log for better visibility
     console.log('\n--- OpenAI system prompt ---\n' + systemPrompt);
-    console.log('--- OpenAI user prompt ---\n' + `${prompt}. Respond only with a JSON array of objects.`);
+    console.log('--- OpenAI user prompt ---\n' + userPromptText);
     const aiResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `${prompt}. Respond only with a JSON array of objects.` }
+        { role: 'user', content: userPromptText }
       ]
     });
     const responseText = aiResponse.choices[0].message.content.trim();
@@ -108,7 +111,7 @@ app.post('/api/creation', async (req, res) => {
     res.json({
       response: responseText,
       systemPrompt,
-      userPrompt: `${prompt}. Respond only with a JSON array of objects.`
+      userPrompt: userPromptText
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
