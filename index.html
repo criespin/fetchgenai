@@ -14,11 +14,11 @@
       <button type="submit" id="send-btn">Submit</button>
     </form>
     <div id="radio-options" style="margin-bottom:1rem;">
-      <label style="margin-right:1.5rem;">
+      <label id="label-query" style="margin-right:1.5rem; color:hsl(69, 88%, 48%); font-weight:700;">
         <input type="radio" name="mode" value="query" checked> Smart Query
       </label>
-      <label>
-        <input type="radio" name="mode" value="creation"> Smart Creation
+      <label id="label-creation" style="color:#ffb300; font-weight:700;">
+        <input type="radio" name="mode" value="creation"> Smart Generation
       </label>
     </div>
     <div id="loading-spinner" class="hidden">
@@ -27,7 +27,7 @@
     <div id="prompt-examples-row" style="width: 100%; display: flex; justify-content: center; align-items: flex-start; gap: 2rem; margin-bottom: 1.5rem;">
       <div id="prompt-examples-query" class="example-card">
         <section class="example-section">
-          <strong>Smart Query Examples</strong>
+          <strong style="color:hsl(69, 88%, 48%)">Smart Query Examples</strong>
           <ul>
             <li>Show all accounts with payment &gt; 100</li>
             <li>List accounts with smart meters</li>
@@ -38,12 +38,11 @@
       </div>
       <div id="prompt-examples-creation" class="example-card">
         <section class="example-section">
-          <strong>Smart Creation Examples</strong>
+          <strong style="color:#ffb300">Smart Generation Examples</strong>
           <ul>
             <li>Generate 10 realistic user profiles with full name, email, phone number, address, and date of birth</li>
             <li>create 10 serial number in this format 'AA123CVA12345'</li>
             <li>Give me stripe Visa Test card for testing</li>
-            
           </ul>
         </section>
       </div>

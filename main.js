@@ -6,6 +6,7 @@ document.getElementById('prompt-form').addEventListener('submit', async function
   const loading = document.getElementById('loading-spinner');
   const sendBtn = document.getElementById('send-btn');
   const mode = document.querySelector('input[name="mode"]:checked').value;
+  const useSchema = document.getElementById('schema-toggle')?.checked;
   table.classList.add('hidden');
   errorDiv.textContent = '';
 
@@ -35,7 +36,7 @@ document.getElementById('prompt-form').addEventListener('submit', async function
       const response = await fetch('https://fetchgenai.onrender.com/api/creation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt, useSchema })
       });
       const result = await response.json();
       if (response.ok && result.response) {
@@ -62,12 +63,12 @@ document.getElementById('prompt-form').addEventListener('submit', async function
           aiDiv = document.createElement('div');
           aiDiv.id = 'ai-response';
           aiDiv.style.margin = '1.5rem 0';
-          aiDiv.style.background = '#fff3e6';
+          aiDiv.style.background = '#e3f0ff'; // Changed from #fff3e6 to a vibrant blue
           aiDiv.style.borderRadius = '12px';
           aiDiv.style.padding = '1rem 1.5rem';
-          aiDiv.style.color = '#ee0979';
+          aiDiv.style.color = '#0077ff'; // Changed from #ee0979 to a strong blue
           aiDiv.style.fontSize = '1.1rem';
-          aiDiv.style.boxShadow = '0 1px 4px rgba(255, 106, 0, 0.07)';
+          aiDiv.style.boxShadow = '0 1px 4px rgba(0, 119, 255, 0.07)'; // Adjusted shadow to match blue theme
           aiDiv.textContent = result.response;
           document.getElementById('response-area').prepend(aiDiv);
         }
@@ -84,6 +85,19 @@ document.getElementById('prompt-form').addEventListener('submit', async function
     sendBtn.disabled = false;
   }
 });
+
+// Add a toggle for schema-based generation
+const radioOptions = document.getElementById('radio-options');
+const schemaToggle = document.createElement('label');
+schemaToggle.id = 'schema-toggle-label';
+schemaToggle.style.marginLeft = '1.5rem';
+schemaToggle.style.fontWeight = '600';
+schemaToggle.style.fontSize = '1rem';
+schemaToggle.style.cursor = 'pointer';
+schemaToggle.innerHTML = `
+  <input type="checkbox" id="schema-toggle" style="margin-right:0.4em;"> Use DB Schema
+`;
+radioOptions.appendChild(schemaToggle);
 
 function renderTable(data) {
   const table = document.getElementById('data-table');

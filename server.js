@@ -56,16 +56,38 @@ app.post('/api/query', async (req, res) => {
 });
 
 app.post('/api/creation', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, useSchema } = req.body;
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required.' });
   }
   try {
-    // Instruct OpenAI to return a JSON array of objects for table display
+    let systemPrompt;
+    if (useSchema) {
+      // Dynamically fetch schema from DB and build a strict JSON template for OpenAI
+      const { rows } = await pool.query(
+        `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'account_details' AND table_schema = 'public' ORDER BY ordinal_position`
+      );
+      if (!rows.length) {
+        return res.status(500).json({ error: 'Could not fetch schema from database.' });
+      }
+      // Build schema string and a strict JSON template
+      const schemaString = rows.map(r => `${r.column_name} (${r.data_type})`).join(', ');
+      const exampleObj = rows.map(r => {
+        if (r.data_type.includes('int')) return `\"${r.column_name}\": 1`;
+        if (r.data_type === 'numeric') return `\"${r.column_name}\": 100.0`;
+        if (r.data_type === 'boolean') return `\"${r.column_name}\": true`;
+        if (r.data_type === 'character varying' || r.data_type === 'varchar' || r.data_type === 'text') return `\"${r.column_name}\": \"example\"`;
+        return `\"${r.column_name}\": null`;
+      }).join(', ');
+      systemPrompt = `You are a strict data generator. ALWAYS respond ONLY with a valid JSON array of objects. Each object MUST have ALL of these keys, with NO extra or missing keys, and in this exact order: ${schemaString}.\n\nEach value must be realistic and type-appropriate.\n\nDo not include any explanation, markdown, or text before or after the JSON.\n\nExample:\n[\n  {${exampleObj}}\n]\n\nIf the user prompt asks for a different number of rows, adjust the number of objects, but ALWAYS use these exact keys and types.`;
+    } else {
+      // Freeform generation
+      systemPrompt = 'You are a helpful assistant that generates test data in JSON array format for table display. Always respond ONLY with a valid JSON array of objects, where each object represents a row and keys are column names. If the user asks for a list of numbers, return a JSON array of objects with a single key (e.g., "number") and each number as a separate object. Do not include any explanation, markdown, or text before or after the JSON.';
+    }
     const aiResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
-        { role: 'system', content: 'You are a helpful assistant that generates test data in JSON array format for table display. Always respond ONLY with a valid JSON array of objects, where each object represents a row and keys are column names. If the user asks for a list of numbers, return a JSON array of objects with a single key (e.g., "number") and each number as a separate object. Do not include any explanation, markdown, or text before or after the JSON.' },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: `${prompt}. Respond only with a JSON array of objects.` }
       ]
     });
